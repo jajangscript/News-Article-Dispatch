@@ -1,12 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 
 const app = express();
-
+dotenv.config();
 mongoose
-  .connect(
-    "mongodb+srv://jajangkdi007:jajangkdi007@cluster0.sdsh3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-  )
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("Database is connected");
   })
