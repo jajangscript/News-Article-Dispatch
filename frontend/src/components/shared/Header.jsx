@@ -41,6 +41,12 @@ const Header = () => {
               New Articles
             </li>
           </Link>
+
+          <Link to={"/sign-up"}>
+            <li className="hidden lg:inline text-slate-700 hover:underline">
+              Sign Up
+            </li>
+          </Link>
         </ul>
 
         <Link to={"/sign-in"}>
