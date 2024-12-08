@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,6 +16,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from "@/redux/user/userSlice";
 // import GoogleAuth from "@/components/shared/GoogleAuth"
 
 const formSchema = z.object({
@@ -27,8 +34,9 @@ const formSchema = z.object({
 const SignInForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+
+  const dispatch = useDispatch();
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
 
   // 1. Define your form.
   const form = useForm({
@@ -42,8 +50,7 @@ const SignInForm = () => {
   // 2. Define a submit handler.
   async function onSubmit(values) {
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      dispatch(signInStart());
 
       const res = await fetch("/api/auth/signin", {
         method: "POST",
@@ -54,15 +61,12 @@ const SignInForm = () => {
       const data = await res.json();
 
       if (data.success === false) {
-        setLoading(false);
         toast({ title: "Sign in failed! Please try again." });
-
-        return setErrorMessage(data.message);
+        dispatch(signInFailure(data.message));
       }
 
-      setLoading(false);
-
       if (res.ok) {
+        dispatch(signInSuccess(data));
         toast({ title: "Sign in Successful!" });
         navigate("/");
       }
@@ -84,9 +88,11 @@ const SignInForm = () => {
             <span className="text-slate-500">Morning</span>
             <span className="text-slate-900">Dispath</span>
           </Link>
+
           <h2 className="text-[24px] md:text-[30px] font-bold leading-[140%] tracking-tighter pt-5 sm:pt-12">
             Sign in to your account
           </h2>
+
           <p className="text-slate-500 text-[14px] font-medium leading-[140%] md:text-[16px] md:font-normal mt-2">
             Welcome back, Please provide your details
           </p>
